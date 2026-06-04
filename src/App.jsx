@@ -59,6 +59,11 @@ const highlightCode = (code, language) => {
   return escaped;
 };
 
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || 
+   window.location.hostname === '127.0.0.1' || 
+   window.location.hostname === '[::1]');
+
 export default function App() {
   const [catalog, setCatalog] = useState([]);
   const [loadingCatalog, setLoadingCatalog] = useState(true);
@@ -923,15 +928,28 @@ export default function App() {
                   </h2>
                 </div>
 
-                {/* VS Code Open Link */}
-                <a
-                  href={`vscode://file/${getComponentFilePath(true).replace(/\\/g, '/')}`}
-                  className="flex items-center gap-1.5 self-start px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/10 active:scale-95 transition-all"
-                  title="Open this file directly in VS Code"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  Open in VS Code
-                </a>
+                 {/* VS Code Open Link OR View on GitHub */}
+                {isLocalhost ? (
+                  <a
+                    href={`vscode://file/${getComponentFilePath(true).replace(/\\/g, '/')}`}
+                    className="flex items-center gap-1.5 self-start px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/10 active:scale-95 transition-all"
+                    title="Open this file directly in VS Code"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Open in VS Code
+                  </a>
+                ) : (
+                  <a
+                    href={`https://github.com/Atik203/tailwindcss-components/blob/main/${getComponentFilePath(false).replace(/\\/g, '/')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 self-start px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/10 active:scale-95 transition-all"
+                    title="View this component's source file on GitHub"
+                  >
+                    <Github className="w-3.5 h-3.5" />
+                    View on GitHub
+                  </a>
+                )}
               </div>
 
               {/* Physical File Location copy banner */}
@@ -940,7 +958,7 @@ export default function App() {
                   ? 'bg-slate-900/40 border-slate-850 text-slate-300' 
                   : 'bg-white border-slate-200 text-slate-700'
               }`}>
-                {isEditingRoot ? (
+                {isLocalhost && isEditingRoot ? (
                   <form 
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -987,45 +1005,50 @@ export default function App() {
                   <div className="flex items-center gap-2 truncate font-mono text-[10px] flex-1">
                     <Folder className="w-4 h-4 text-indigo-400 shrink-0" />
                     <span className="text-slate-500 shrink-0">Path:</span>
-                    <span className="truncate select-all" title={getComponentFilePath(true)}>{getComponentFilePath(true)}</span>
-                    <button
-                      onClick={() => {
-                        setRootInputVal(projectRoot);
-                        setIsEditingRoot(true);
-                      }}
-                      className={`p-1 rounded transition-colors ${
-                        portalDarkMode ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-black'
-                      }`}
-                      title="Edit project base root directory"
-                    >
-                      {/* Settings/Edit pencil icon */}
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                      </svg>
-                    </button>
+                    <span className="truncate select-all" title={getComponentFilePath(isLocalhost)}>{getComponentFilePath(isLocalhost)}</span>
+                    {isLocalhost && (
+                      <button
+                        onClick={() => {
+                          setRootInputVal(projectRoot);
+                          setIsEditingRoot(true);
+                        }}
+                        className={`p-1 rounded transition-colors ${
+                          portalDarkMode ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-black'
+                        }`}
+                        title="Edit project base root directory"
+                      >
+                        {/* Settings/Edit pencil icon */}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 )}
                 
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => handleCopyPath(false)}
-                    className={`px-2 py-1 rounded text-[10px] font-medium border transition-all ${
+                    className={`px-2.5 py-1 rounded text-[10px] font-semibold border transition-all ${
                       portalDarkMode 
-                        ? 'hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-white' 
-                        : 'hover:bg-slate-100 border-slate-200 text-slate-600 hover:text-black'
+                        ? 'hover:bg-slate-800 border-slate-800 text-slate-400 hover:text-white bg-slate-850' 
+                        : 'hover:bg-slate-100 border-slate-200 text-slate-650 hover:text-black bg-slate-50'
                     }`}
-                    title="Copy Relative Path"
+                    title={isLocalhost ? "Copy Relative Path" : "Copy Component Relative Path"}
                   >
-                    Rel Path
+                    {copiedPath ? <Check className="w-3 h-3 text-emerald-400 inline mr-1" /> : <Copy className="w-3 h-3 inline mr-1" />}
+                    {copiedPath ? 'Copied!' : 'Copy Path'}
                   </button>
-                  <button
-                    onClick={() => handleCopyPath(true)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-semibold bg-slate-850 hover:bg-slate-800 border border-slate-750 text-indigo-400 hover:text-indigo-300 transition-all"
-                    title="Copy absolute disk path"
-                  >
-                    {copiedPath ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                    {copiedPath ? 'Copied!' : 'Copy Abs'}
-                  </button>
+                  {isLocalhost && (
+                    <button
+                      onClick={() => handleCopyPath(true)}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-semibold bg-slate-850 hover:bg-slate-800 border border-slate-750 text-indigo-400 hover:text-indigo-300 transition-all"
+                      title="Copy absolute disk path"
+                    >
+                      {copiedPath ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      {copiedPath ? 'Copied!' : 'Copy Abs'}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
