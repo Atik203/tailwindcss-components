@@ -982,7 +982,11 @@ export default function App() {
                     <span>Viewport Preview ({viewportWidth === '100%' ? 'Responsive' : viewportWidth})</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-mono opacity-80 uppercase px-1.5 py-0.5 rounded bg-slate-800/40 text-slate-400">
+                    <span className={`text-[10px] font-mono uppercase px-1.5 py-0.5 rounded ${
+                      portalDarkMode 
+                        ? 'bg-slate-800/40 text-slate-300' 
+                        : 'bg-slate-200 text-slate-600'
+                    }`}>
                       HTML Source
                     </span>
                     {loadingPreview && <RotateCw className="w-3.5 h-3.5 animate-spin text-indigo-400" />}
