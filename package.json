@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node api.js && vite",
     "build": "vite build && node scripts/copy-components.js",
     "preview": "vite preview",
     "generate-catalog": "node scripts/generate-catalog.js"
