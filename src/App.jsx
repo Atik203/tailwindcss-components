@@ -127,8 +127,112 @@ export default function App() {
   const [portalDarkMode, setPortalDarkMode] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  // Configurable absolute path root for multi-OS support
+  const [projectRoot, setProjectRoot] = useState(() => {
+    try {
+      const saved = localStorage.getItem('portal_project_root');
+      if (saved) return saved;
+    } catch {}
+    const isWin = typeof window !== 'undefined' && 
+      (window.navigator.userAgent.includes('Windows') || window.navigator.platform.includes('Win'));
+    return isWin ? 'E:\\PROJECT\\twp-components' : '/home/user/PROJECT/twp-components';
+  });
+  const [isEditingRoot, setIsEditingRoot] = useState(false);
+  const [rootInputVal, setRootInputVal] = useState(projectRoot);
+
   const searchInputRef = useRef(null);
   const fileCache = useRef({});
+
+  // Command Palette states & hooks
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [paletteSearch, setPaletteSearch] = useState('');
+  const [paletteSelectedIndex, setPaletteSelectedIndex] = useState(0);
+  const paletteInputRef = useRef(null);
+
+  const paletteResults = useMemo(() => {
+    if (!paletteSearch.trim()) return catalog.slice(0, 10);
+    const query = paletteSearch.toLowerCase();
+    return catalog.filter(item => 
+      item.name.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query) ||
+      item.subcategory.toLowerCase().includes(query)
+    );
+  }, [catalog, paletteSearch]);
+
+  useEffect(() => {
+    setPaletteSelectedIndex(0);
+  }, [paletteSearch]);
+
+  useEffect(() => {
+    if (isPaletteOpen) {
+      setTimeout(() => {
+        paletteInputRef.current?.focus();
+      }, 50);
+    }
+  }, [isPaletteOpen]);
+
+  const handlePaletteKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setPaletteSelectedIndex(prev => (prev + 1) % paletteResults.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setPaletteSelectedIndex(prev => (prev - 1 + paletteResults.length) % paletteResults.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (paletteResults[paletteSelectedIndex]) {
+        setSelectedComponent(paletteResults[paletteSelectedIndex]);
+        setIsPaletteOpen(false);
+        setPaletteSearch('');
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsPaletteOpen(false);
+      setPaletteSearch('');
+    }
+  };
+
+  // Viewport drag-to-resize states & handlers
+  const [isDragging, setIsDragging] = useState(false);
+  const viewportContainerRef = useRef(null);
+
+  const handleMouseDown = (e, direction) => {
+    e.preventDefault();
+    setIsDragging(true);
+    
+    const startX = e.clientX;
+    const containerWidth = viewportContainerRef.current ? viewportContainerRef.current.clientWidth : 800;
+    let initialWidth = 0;
+    
+    if (viewportWidth === '100%') {
+      initialWidth = containerWidth;
+    } else {
+      initialWidth = parseInt(viewportWidth, 10);
+    }
+    
+    const handleMouseMove = (moveEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      let newWidth = direction === 'right' 
+        ? initialWidth + deltaX * 2 
+        : initialWidth - deltaX * 2;
+      
+      const minWidth = 320;
+      const maxWidth = containerWidth - 48;
+      if (newWidth < minWidth) newWidth = minWidth;
+      if (newWidth > maxWidth) newWidth = maxWidth;
+      
+      setViewportWidth(`${newWidth}px`);
+    };
+    
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
 
   // Load catalog on mount
   useEffect(() => {
@@ -156,7 +260,7 @@ export default function App() {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        searchInputRef.current?.focus();
+        setIsPaletteOpen(true);
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
         e.preventDefault();
@@ -362,8 +466,20 @@ export default function App() {
     if (!selectedComponent) return '';
     const ext = getFileExtension(selectedFlavor);
     const themeSuffix = selectedTheme === 'default' ? '' : `-${selectedTheme}`;
-    const relative = `${selectedComponent.relativePath}/${selectedVersion}/${selectedFlavor}${themeSuffix}.${ext}`.replace(/\//g, '\\');
-    return isFull ? `E:\\PROJECT\\twp-components\\${relative}` : relative;
+    
+    // Determine OS-specific separator dynamically
+    const isWin = typeof window !== 'undefined' && 
+      (window.navigator.userAgent.includes('Windows') || window.navigator.platform.includes('Win'));
+    const separator = isWin ? '\\' : '/';
+    
+    const relative = `${selectedComponent.relativePath}/${selectedVersion}/${selectedFlavor}${themeSuffix}.${ext}`
+      .replace(/\//g, separator);
+      
+    if (isFull) {
+      const base = projectRoot.endsWith(separator) ? projectRoot : projectRoot + separator;
+      return `${base}${relative}`;
+    }
+    return relative;
   };
 
   const handleCopyPath = (isFull = false) => {
@@ -518,7 +634,7 @@ export default function App() {
                           } transition-colors`}
                         >
                           <span className="truncate flex items-center gap-1.5">
-                            {isCatExpanded ? <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />}
+                            <ChevronRight className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform duration-200 ${isCatExpanded ? 'rotate-90' : ''}`} />
                             {categoryName}
                           </span>
                           <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${portalDarkMode ? 'bg-slate-950/60 text-slate-500' : 'bg-slate-100 text-slate-500'}`}>
@@ -527,8 +643,15 @@ export default function App() {
                         </button>
 
                         {/* Subcategories (Expanded) */}
-                        {isCatExpanded && (
-                          <div className="pl-3 ml-2 border-l border-slate-800 space-y-0.5 mt-0.5">
+                        <div 
+                          className="grid transition-all duration-300 ease-in-out"
+                          style={{
+                            gridTemplateRows: isCatExpanded ? '1fr' : '0fr',
+                            opacity: isCatExpanded ? 1 : 0,
+                            visibility: isCatExpanded ? 'visible' : 'hidden'
+                          }}
+                        >
+                          <div className="overflow-hidden pl-3 ml-2 border-l border-slate-800 space-y-0.5 mt-0.5">
                             {Object.keys(groupedCatalog[sectionName][categoryName]).map((subcategoryName) => {
                               const subcatKey = `${categoryName}-${subcategoryName}`;
                               const isSubcatExpanded = expandedSubcategories[subcatKey];
@@ -546,7 +669,7 @@ export default function App() {
                                     } transition-colors`}
                                   >
                                     <span className="truncate flex items-center gap-1">
-                                      {isSubcatExpanded ? <ChevronDown className="w-3 h-3 text-slate-600 shrink-0" /> : <ChevronRight className="w-3 h-3 text-slate-600 shrink-0" />}
+                                      <ChevronRight className={`w-3 h-3 text-slate-650 shrink-0 transition-transform duration-200 ${isSubcatExpanded ? 'rotate-90' : ''}`} />
                                       {subcategoryName}
                                     </span>
                                     <span className="text-[9px] text-slate-600">
@@ -555,8 +678,15 @@ export default function App() {
                                   </button>
 
                                   {/* Component Items (Expanded) */}
-                                  {isSubcatExpanded && (
-                                    <div className="pl-2 ml-1 border-l border-slate-800/60 space-y-0.5 mt-0.5">
+                                  <div 
+                                    className="grid transition-all duration-350 ease-in-out"
+                                    style={{
+                                      gridTemplateRows: isSubcatExpanded ? '1fr' : '0fr',
+                                      opacity: isSubcatExpanded ? 1 : 0,
+                                      visibility: isSubcatExpanded ? 'visible' : 'hidden'
+                                    }}
+                                  >
+                                    <div className="overflow-hidden pl-2 ml-1 border-l border-slate-800/60 space-y-0.5 mt-0.5">
                                       {groupedCatalog[sectionName][categoryName][subcategoryName].map((comp) => {
                                         const isSelected = selectedComponent?.id === comp.id;
                                         return (
@@ -580,12 +710,12 @@ export default function App() {
                                         );
                                       })}
                                     </div>
-                                  )}
+                                  </div>
                                 </div>
                               );
                             })}
                           </div>
-                        )}
+                        </div>
                       </div>
                     );
                   })}
@@ -724,23 +854,16 @@ export default function App() {
               <input
                 ref={searchInputRef}
                 type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                readOnly
+                onClick={() => setIsPaletteOpen(true)}
+                onFocus={(e) => { e.target.blur(); setIsPaletteOpen(true); }}
                 placeholder="Search components... (Ctrl + K)"
-                className={`w-full pl-9 pr-12 py-1.5 rounded-lg text-xs outline-none transition-all ${
+                className={`w-full pl-9 pr-4 py-1.5 rounded-lg text-xs outline-none transition-all cursor-pointer ${
                   portalDarkMode 
-                    ? 'bg-slate-950/80 border border-slate-800 text-slate-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50' 
-                    : 'bg-slate-100 border border-slate-200 text-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30'
+                    ? 'bg-slate-950/80 border border-slate-800 text-slate-100 hover:border-slate-700' 
+                    : 'bg-slate-100 border border-slate-200 text-slate-900 hover:border-slate-300'
                 }`}
               />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-2 p-0.5 rounded-md hover:bg-slate-850 text-slate-500"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
             </div>
           </div>
 
@@ -812,16 +935,77 @@ export default function App() {
               </div>
 
               {/* Physical File Location copy banner */}
-              <div className={`p-3 rounded-lg flex items-center justify-between gap-3 text-xs border ${
+              <div className={`p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border transition-all ${
                 portalDarkMode 
                   ? 'bg-slate-900/40 border-slate-850 text-slate-300' 
                   : 'bg-white border-slate-200 text-slate-700'
               }`}>
-                <div className="flex items-center gap-2 truncate font-mono text-[10px]">
-                  <Folder className="w-4 h-4 text-indigo-400 shrink-0" />
-                  <span className="text-slate-500 shrink-0">Path:</span>
-                  <span className="truncate select-all">{getComponentFilePath(true)}</span>
-                </div>
+                {isEditingRoot ? (
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      localStorage.setItem('portal_project_root', rootInputVal);
+                      setProjectRoot(rootInputVal);
+                      setIsEditingRoot(false);
+                    }}
+                    className="flex-1 flex items-center gap-2"
+                  >
+                    <span className="text-[10px] text-slate-500 shrink-0 font-semibold uppercase">Repo Root:</span>
+                    <input
+                      type="text"
+                      value={rootInputVal}
+                      onChange={(e) => setRootInputVal(e.target.value)}
+                      placeholder="Type your absolute local project root directory path..."
+                      className={`flex-1 px-2.5 py-1 text-[11px] rounded outline-none border transition-all ${
+                        portalDarkMode 
+                          ? 'bg-slate-950 border-slate-800 text-white focus:border-indigo-500' 
+                          : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-500'
+                      }`}
+                    />
+                    <button
+                      type="submit"
+                      className="px-2.5 py-1 text-[10px] font-bold rounded bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRootInputVal(projectRoot);
+                        setIsEditingRoot(false);
+                      }}
+                      className={`px-2.5 py-1 text-[10px] font-semibold rounded border ${
+                        portalDarkMode 
+                          ? 'border-slate-800 hover:bg-slate-800 text-slate-400' 
+                          : 'border-slate-200 hover:bg-slate-100 text-slate-600'
+                      }`}
+                    >
+                      Cancel
+                    </button>
+                  </form>
+                ) : (
+                  <div className="flex items-center gap-2 truncate font-mono text-[10px] flex-1">
+                    <Folder className="w-4 h-4 text-indigo-400 shrink-0" />
+                    <span className="text-slate-500 shrink-0">Path:</span>
+                    <span className="truncate select-all" title={getComponentFilePath(true)}>{getComponentFilePath(true)}</span>
+                    <button
+                      onClick={() => {
+                        setRootInputVal(projectRoot);
+                        setIsEditingRoot(true);
+                      }}
+                      className={`p-1 rounded transition-colors ${
+                        portalDarkMode ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-black'
+                      }`}
+                      title="Edit project base root directory"
+                    >
+                      {/* Settings/Edit pencil icon */}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+                
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => handleCopyPath(false)}
@@ -855,116 +1039,201 @@ export default function App() {
               <div className="flex flex-wrap items-center gap-3">
                 
                 {/* Mode Selector */}
-                <div className={`p-0.5 rounded-lg border flex ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
-                  <button
-                    onClick={() => setViewMode('preview')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                      viewMode === 'preview'
-                        ? portalDarkMode ? 'bg-slate-800 text-white shadow-sm' : 'bg-white text-indigo-600 shadow-sm border-slate-200'
-                        : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    Preview
-                  </button>
-                  <button
-                    onClick={() => setViewMode('code')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                      viewMode === 'code'
-                        ? portalDarkMode ? 'bg-slate-800 text-white shadow-sm' : 'bg-white text-indigo-600 shadow-sm border-slate-200'
-                        : 'text-slate-500 hover:text-slate-300'
-                    }`}
-                  >
-                    <Code className="w-3.5 h-3.5" />
-                    Code
-                  </button>
-                </div>
-
-                {/* Viewport Width Controls (Only in Preview) */}
-                {viewMode === 'preview' && (
-                  <div className={`p-0.5 rounded-lg border flex items-center gap-0.5 ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
-                    {[
-                      { width: '375px', icon: Smartphone, label: 'Mobile' },
-                      { width: '768px', icon: Tablet, label: 'Tablet' },
-                      { width: '1024px', icon: Laptop, label: 'Laptop' },
-                      { width: '100%', icon: Monitor, label: 'Desktop' }
-                    ].map((vp) => (
+                {(() => {
+                  const modes = ['preview', 'code'];
+                  const activeIndex = modes.indexOf(viewMode);
+                  return (
+                    <div className={`p-0.5 rounded-lg border flex relative ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
+                      {activeIndex !== -1 && (
+                        <div 
+                          className={`absolute top-0.5 bottom-0.5 rounded-md transition-all duration-300 ease-out ${
+                            portalDarkMode ? 'bg-slate-800' : 'bg-white shadow-xs border border-slate-200/50'
+                          }`}
+                          style={{
+                            width: `calc(50% - 4px)`,
+                            left: '2px',
+                            transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 4}px))`
+                          }}
+                        />
+                      )}
                       <button
-                        key={vp.width}
-                        onClick={() => setViewportWidth(vp.width)}
-                        className={`p-1.5 rounded-md transition-all ${
-                          viewportWidth === vp.width
-                            ? portalDarkMode ? 'bg-slate-800 text-indigo-400' : 'bg-white text-indigo-600 shadow-xs'
+                        onClick={() => setViewMode('preview')}
+                        className={`relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 ${
+                          viewMode === 'preview'
+                            ? portalDarkMode ? 'text-white' : 'text-indigo-600'
                             : 'text-slate-500 hover:text-slate-300'
                         }`}
-                        title={vp.label}
                       >
-                        <vp.icon className="w-4 h-4" />
+                        <Eye className="w-3.5 h-3.5" />
+                        Preview
                       </button>
-                    ))}
-                  </div>
-                )}
+                      <button
+                        onClick={() => setViewMode('code')}
+                        className={`relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 ${
+                          viewMode === 'code'
+                            ? portalDarkMode ? 'text-white' : 'text-indigo-600'
+                            : 'text-slate-500 hover:text-slate-300'
+                        }`}
+                      >
+                        <Code className="w-3.5 h-3.5" />
+                        Code
+                      </button>
+                    </div>
+                  );
+                })()}
+
+                {/* Viewport Width Controls (Only in Preview) */}
+                {viewMode === 'preview' && (() => {
+                  const viewports = [
+                    { width: '375px', icon: Smartphone, label: 'Mobile' },
+                    { width: '768px', icon: Tablet, label: 'Tablet' },
+                    { width: '1024px', icon: Laptop, label: 'Laptop' },
+                    { width: '100%', icon: Monitor, label: 'Desktop' }
+                  ];
+                  const activeIndex = viewports.findIndex(vp => vp.width === viewportWidth);
+                  return (
+                    <div className={`p-0.5 rounded-lg border flex items-center relative ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
+                      {activeIndex !== -1 && (
+                        <div 
+                          className={`absolute top-0.5 bottom-0.5 rounded-md transition-all duration-300 ease-out ${
+                            portalDarkMode ? 'bg-slate-800' : 'bg-white shadow-xs border border-slate-200/50'
+                          }`}
+                          style={{
+                            width: '28px',
+                            left: '2px',
+                            transform: `translateX(${activeIndex * 28}px)`
+                          }}
+                        />
+                      )}
+                      {viewports.map((vp) => (
+                        <button
+                          key={vp.width}
+                          onClick={() => setViewportWidth(vp.width)}
+                          className={`relative z-10 w-7 h-7 flex items-center justify-center rounded-md transition-all duration-200 ${
+                            viewportWidth === vp.width
+                              ? portalDarkMode ? 'text-indigo-400' : 'text-indigo-600'
+                              : 'text-slate-500 hover:text-slate-300'
+                          }`}
+                          title={vp.label}
+                        >
+                          <vp.icon className="w-4 h-4" />
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Right Side: Version, Flavor & Component Theme Selector */}
               <div className="flex flex-wrap items-center gap-3">
                 
                 {/* Version Selector (v3 vs v4) */}
-                {selectedComponent.versions.length > 1 && (
-                  <div className={`p-0.5 rounded-lg border flex ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
-                    {selectedComponent.versions.map(v => (
-                      <button
-                        key={v}
-                        onClick={() => setSelectedVersion(v)}
-                        className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-all ${
-                          selectedVersion === v
-                            ? portalDarkMode ? 'bg-slate-800 text-white' : 'bg-white text-indigo-600 shadow-xs'
-                            : 'text-slate-500 hover:text-slate-350'
-                        }`}
-                      >
-                        {v}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {selectedComponent.versions.length > 1 && (() => {
+                  const versions = selectedComponent.versions;
+                  const activeIndex = versions.indexOf(selectedVersion);
+                  return (
+                    <div className={`p-0.5 rounded-lg border flex relative ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
+                      {activeIndex !== -1 && (
+                        <div 
+                          className={`absolute top-0.5 bottom-0.5 rounded-md transition-all duration-300 ease-out ${
+                            portalDarkMode ? 'bg-slate-800' : 'bg-white shadow-xs border border-slate-200/50'
+                          }`}
+                          style={{
+                            width: `calc(${100 / versions.length}% - 4px)`,
+                            left: '2px',
+                            transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 4}px))`
+                          }}
+                        />
+                      )}
+                      {versions.map(v => (
+                        <button
+                          key={v}
+                          onClick={() => setSelectedVersion(v)}
+                          className={`relative z-10 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-all duration-200 ${
+                            selectedVersion === v
+                              ? portalDarkMode ? 'text-white' : 'text-indigo-600'
+                              : 'text-slate-500 hover:text-slate-300'
+                          }`}
+                        >
+                          {v}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
 
                 {/* Flavor Selector (HTML / React / Vue) */}
-                <div className={`p-0.5 rounded-lg border flex ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
-                  {Object.keys(selectedComponent.files[selectedVersion] || {}).map(fl => {
+                {(() => {
+                  const availableFlavors = Object.keys(selectedComponent.files[selectedVersion] || {}).filter(fl => {
                     const availableThemes = selectedComponent.files[selectedVersion]?.[fl] || [];
-                    if (availableThemes.length === 0) return null;
-                    return (
-                      <button
-                        key={fl}
-                        onClick={() => setSelectedFlavor(fl)}
-                        className={`px-3 py-1 rounded-md text-xs font-semibold capitalize transition-all ${
-                          selectedFlavor === fl
-                            ? portalDarkMode ? 'bg-slate-800 text-white' : 'bg-white text-indigo-600 shadow-xs'
-                            : 'text-slate-500 hover:text-slate-350'
-                        }`}
-                      >
-                        {fl === 'html' ? 'HTML' : fl === 'react' ? 'React' : 'Vue'}
-                      </button>
-                    );
-                  })}
-                </div>
+                    return availableThemes.length > 0;
+                  });
+                  const activeIndex = availableFlavors.indexOf(selectedFlavor);
+                  return (
+                    <div className={`p-0.5 rounded-lg border flex relative ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
+                      {activeIndex !== -1 && (
+                        <div 
+                          className={`absolute top-0.5 bottom-0.5 rounded-md transition-all duration-300 ease-out ${
+                            portalDarkMode ? 'bg-slate-800' : 'bg-white shadow-xs border border-slate-200/50'
+                          }`}
+                          style={{
+                            width: `calc(${100 / availableFlavors.length}% - 4px)`,
+                            left: '2px',
+                            transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 4}px))`
+                          }}
+                        />
+                      )}
+                      {availableFlavors.map(fl => (
+                        <button
+                          key={fl}
+                          onClick={() => setSelectedFlavor(fl)}
+                          className={`relative z-10 px-3 py-1 rounded-md text-xs font-semibold capitalize transition-all duration-200 ${
+                            selectedFlavor === fl
+                              ? portalDarkMode ? 'text-white' : 'text-indigo-600'
+                              : 'text-slate-500 hover:text-slate-300'
+                          }`}
+                        >
+                          {fl === 'html' ? 'HTML' : fl === 'react' ? 'React' : 'Vue'}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
 
                 {/* Theme Selector (Light / Dark / System) */}
-                <div className={`p-0.5 rounded-lg border flex ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
-                  {(selectedComponent.files[selectedVersion]?.[selectedFlavor] || []).map(th => (
-                    <button
-                      key={th}
-                      onClick={() => setSelectedTheme(th)}
-                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-all ${
-                        selectedTheme === th
-                          ? portalDarkMode ? 'bg-slate-800 text-indigo-400' : 'bg-white text-indigo-600 shadow-xs'
-                          : 'text-slate-500 hover:text-slate-350'
-                      }`}
-                    >
-                      {th}
-                    </button>
-                  ))}
-                </div>
+                {(() => {
+                  const availableThemes = selectedComponent.files[selectedVersion]?.[selectedFlavor] || [];
+                  const activeIndex = availableThemes.indexOf(selectedTheme);
+                  return (
+                    <div className={`p-0.5 rounded-lg border flex relative ${portalDarkMode ? 'bg-slate-950 border-slate-850' : 'bg-slate-100 border-slate-200'}`}>
+                      {activeIndex !== -1 && (
+                        <div 
+                          className={`absolute top-0.5 bottom-0.5 rounded-md transition-all duration-300 ease-out ${
+                            portalDarkMode ? 'bg-slate-800' : 'bg-white shadow-xs border border-slate-200/50'
+                          }`}
+                          style={{
+                            width: `calc(${100 / availableThemes.length}% - 4px)`,
+                            left: '2px',
+                            transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 4}px))`
+                          }}
+                        />
+                      )}
+                      {availableThemes.map(th => (
+                        <button
+                          key={th}
+                          onClick={() => setSelectedTheme(th)}
+                          className={`relative z-10 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-all duration-200 ${
+                            selectedTheme === th
+                              ? portalDarkMode ? 'text-indigo-400' : 'text-indigo-600'
+                              : 'text-slate-500 hover:text-slate-350'
+                          }`}
+                        >
+                          {th}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
@@ -994,13 +1263,48 @@ export default function App() {
                 </div>
 
                 {/* The Resizable Iframe Viewport */}
-                <div className={`flex-1 flex justify-center p-6 min-h-[500px] overflow-auto ${
-                  selectedTheme === 'dark' ? 'bg-slate-900/60' : 'bg-slate-150/40'
-                }`}>
+                <div 
+                  ref={viewportContainerRef}
+                  className={`flex-1 flex justify-center p-6 min-h-[500px] overflow-auto relative ${
+                    selectedTheme === 'dark' ? 'bg-slate-900/60' : 'bg-slate-150/40'
+                  }`}
+                >
                   <div 
                     style={{ width: viewportWidth }}
-                    className="h-[600px] bg-white rounded-lg shadow-lg border border-slate-250/20 overflow-hidden transition-all duration-350 ease-out relative"
+                    className={`h-[600px] bg-white rounded-lg shadow-lg border border-slate-250/20 overflow-hidden relative ${
+                      isDragging ? '' : 'transition-all duration-350 ease-out'
+                    }`}
                   >
+                    {/* Width Indicator Tooltip (only when dragging) */}
+                    {isDragging && (
+                      <div className="absolute top-3 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded bg-slate-900/90 text-white font-mono text-[10px] z-30 shadow-md backdrop-blur-xs flex items-center gap-1 border border-slate-700 select-none pointer-events-none">
+                        <span>Width:</span>
+                        <span className="font-semibold text-indigo-400">
+                          {viewportWidth === '100%' && viewportContainerRef.current 
+                            ? `${viewportContainerRef.current.clientWidth}px` 
+                            : viewportWidth}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Left Drag Handle */}
+                    <div 
+                      onMouseDown={(e) => handleMouseDown(e, 'left')}
+                      className="absolute top-0 left-0 w-2.5 h-full cursor-ew-resize hover:bg-indigo-500/10 active:bg-indigo-500/20 flex items-center justify-center transition-colors group z-20"
+                      title="Drag to resize viewport"
+                    >
+                      <div className="w-[3px] h-8 rounded-full bg-slate-300/80 group-hover:bg-indigo-400 group-active:bg-indigo-500 transition-colors" />
+                    </div>
+
+                    {/* Right Drag Handle */}
+                    <div 
+                      onMouseDown={(e) => handleMouseDown(e, 'right')}
+                      className="absolute top-0 right-0 w-2.5 h-full cursor-ew-resize hover:bg-indigo-500/10 active:bg-indigo-500/20 flex items-center justify-center transition-colors group z-20"
+                      title="Drag to resize viewport"
+                    >
+                      <div className="w-[3px] h-8 rounded-full bg-slate-300/80 group-hover:bg-indigo-400 group-active:bg-indigo-500 transition-colors" />
+                    </div>
+
                     {iframeSrcDoc ? (
                       <>
                         {!iframeLoaded && (
@@ -1012,7 +1316,7 @@ export default function App() {
                           srcDoc={iframeSrcDoc}
                           title="Component Live Preview"
                           onLoad={() => setIframeLoaded(true)}
-                          className={`w-full h-full border-none bg-transparent transition-opacity duration-300 ${iframeLoaded ? 'opacity-100' : 'opacity-0'}`}
+                          className={`w-full h-full border-none bg-transparent transition-opacity duration-300 ${iframeLoaded ? 'opacity-100' : 'opacity-0'} ${isDragging ? 'pointer-events-none' : ''}`}
                           sandbox="allow-scripts allow-same-origin"
                         />
                       </>
@@ -1077,6 +1381,103 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* Command Palette Modal */}
+      {isPaletteOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh] bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => {
+            setIsPaletteOpen(false);
+            setPaletteSearch('');
+          }}
+        >
+          <div 
+            className={`w-full max-w-lg rounded-xl shadow-2xl border overflow-hidden flex flex-col transform transition-all duration-200 animate-in slide-in-from-top-4 ${
+              portalDarkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Input Header */}
+            <div className={`p-4 border-b flex items-center gap-3 ${portalDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+              <Search className="w-5 h-5 text-slate-500 shrink-0" />
+              <input
+                ref={paletteInputRef}
+                type="text"
+                value={paletteSearch}
+                onChange={(e) => setPaletteSearch(e.target.value)}
+                onKeyDown={handlePaletteKeyDown}
+                placeholder="Search components..."
+                className="w-full bg-transparent text-sm outline-none placeholder-slate-500"
+              />
+              <button 
+                onClick={() => {
+                  setIsPaletteOpen(false);
+                  setPaletteSearch('');
+                }}
+                className="text-[10px] px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/40 text-slate-400 select-none hover:bg-slate-800 transition-all"
+              >
+                ESC
+              </button>
+            </div>
+
+            {/* Results List */}
+            <div className="max-h-[300px] overflow-y-auto p-2 space-y-0.5">
+              {paletteResults.length > 0 ? (
+                paletteResults.map((comp, index) => {
+                  const isSelected = index === paletteSelectedIndex;
+                  return (
+                    <button
+                      key={comp.id}
+                      onClick={() => {
+                        setSelectedComponent(comp);
+                        setIsPaletteOpen(false);
+                        setPaletteSearch('');
+                      }}
+                      className={`w-full text-left px-3 py-2.5 rounded-lg text-xs flex items-center justify-between transition-all ${
+                        isSelected
+                          ? 'bg-indigo-600 text-white shadow-sm'
+                          : portalDarkMode 
+                            ? 'hover:bg-slate-800/50 text-slate-300' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <FileCode className={`w-4 h-4 shrink-0 ${isSelected ? 'text-white' : 'text-indigo-400'}`} />
+                        <span className="font-medium truncate">{comp.name}</span>
+                      </div>
+                      <div className={`flex items-center gap-1.5 text-[9px] shrink-0 font-bold uppercase tracking-wider ${
+                        isSelected ? 'text-indigo-200' : 'text-slate-500'
+                      }`}>
+                        <span>{comp.category}</span>
+                        <span>•</span>
+                        <span>{comp.subcategory}</span>
+                      </div>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="p-8 text-center text-xs text-slate-500">
+                  No components match your search.
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className={`p-3 border-t flex items-center justify-between text-[10px] text-slate-500 ${
+              portalDarkMode ? 'border-slate-800 bg-slate-950/40' : 'border-slate-100 bg-slate-50'
+            }`}>
+              <div className="flex items-center gap-2">
+                <span>↑↓ to navigate</span>
+                <span>•</span>
+                <span>Enter to select</span>
+              </div>
+              <div>
+                <span>{paletteResults.length} results</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
