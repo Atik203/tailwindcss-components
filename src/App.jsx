@@ -76,8 +76,32 @@ export default function App() {
   const [selectedSection, setSelectedSection] = useState('All'); // 'All' | 'Application UI' | 'Ecommerce' | 'Marketing'
   
   // Sidebar Accordion states
-  const [expandedCategories, setExpandedCategories] = useState({});
-  const [expandedSubcategories, setExpandedSubcategories] = useState({});
+  const [expandedCategories, setExpandedCategories] = useState(() => {
+    try {
+      const saved = localStorage.getItem('portal_expanded_cats');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [expandedSubcategories, setExpandedSubcategories] = useState(() => {
+    try {
+      const saved = localStorage.getItem('portal_expanded_subcats');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Save accordion states to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('portal_expanded_cats', JSON.stringify(expandedCategories));
+  }, [expandedCategories]);
+
+  useEffect(() => {
+    localStorage.setItem('portal_expanded_subcats', JSON.stringify(expandedSubcategories));
+  }, [expandedSubcategories]);
   
   // Code loading states
   const [codeContent, setCodeContent] = useState('');
@@ -392,10 +416,16 @@ export default function App() {
   }, [htmlPreviewContent, selectedTheme]);
 
   return (
-    <div className={`h-screen flex overflow-hidden ${portalDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+    <div className={`h-screen flex overflow-hidden ${
+      portalDarkMode 
+        ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100' 
+        : 'bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 text-slate-900'
+    }`}>
       
       {/* LEFT SIDEBAR (Desktop) */}
-      <aside className={`hidden lg:flex lg:flex-col shrink-0 border-r ${portalDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'} transition-all duration-300 ease-in-out ${
+      <aside className={`hidden lg:flex lg:flex-col shrink-0 border-r ${
+        portalDarkMode ? 'bg-slate-900/80 border-slate-800/80' : 'bg-white/80 border-slate-200'
+      } backdrop-blur-md transition-all duration-300 ease-in-out ${
         isSidebarCollapsed ? 'w-0 opacity-0 overflow-hidden border-r-0' : 'w-80'
       }`}>
         
@@ -642,7 +672,9 @@ export default function App() {
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         {/* Top Header Bar */}
-        <header className={`h-16 flex items-center justify-between px-6 border-b ${portalDarkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'} shrink-0 transition-colors duration-200`}>
+        <header className={`h-16 flex items-center justify-between px-6 border-b backdrop-blur-md sticky top-0 z-20 ${
+          portalDarkMode ? 'bg-slate-900/70 border-slate-800/80' : 'bg-white/80 border-slate-200'
+        } shrink-0 transition-colors duration-200`}>
           
           {/* Left: Mobile Menu Trigger, Desktop Sidebar Toggle & Search */}
           <div className="flex items-center gap-3.5 flex-1 max-w-lg">
