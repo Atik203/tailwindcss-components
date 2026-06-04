@@ -1,0 +1,29 @@
+export default function Example() {
+  return (
+    <div className="bg-gray-800/50 outline outline-1 -outline-offset-1 outline-white/10 sm:rounded-lg">
+      <div className="px-4 py-5 sm:p-6">
+        <h3 className="text-base font-semibold text-white">Renew subscription automatically</h3>
+        <div className="mt-2 sm:flex sm:items-start sm:justify-between">
+          <div className="max-w-xl text-sm text-gray-400">
+            <p id="renew-subscription-description">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo totam non cumque deserunt officiis ex
+              maiores nostrum.
+            </p>
+          </div>
+          <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:shrink-0 sm:items-center">
+            <div className="group relative inline-flex w-11 shrink-0 rounded-full bg-white/5 p-0.5 outline-offset-2 outline-indigo-500 ring-1 ring-inset ring-white/10 transition-colors duration-200 ease-in-out has-[:checked]:bg-indigo-500 has-[:focus-visible]:outline has-[:focus-visible]:outline-2">
+              <span className="size-5 rounded-full bg-white shadow-sm ring-1 ring-gray-900/5 transition-transform duration-200 ease-in-out group-has-[:checked]:translate-x-5" />
+              <input
+                name="renew-subscription"
+                type="checkbox"
+                aria-label="Renew subscription automatically"
+                aria-describedby="renew-subscription-description"
+                className="absolute inset-0 size-full appearance-none focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

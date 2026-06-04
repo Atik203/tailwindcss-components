@@ -1,0 +1,8 @@
+<template>
+  <div class="flex items-center">
+    <div class="relative flex justify-start">
+      <span class="bg-gray-900 pr-2 text-sm text-gray-400">Continue</span>
+    </div>
+    <div class="w-full border-t border-white/15" aria-hidden="true"></div>
+  </div>
+</template>

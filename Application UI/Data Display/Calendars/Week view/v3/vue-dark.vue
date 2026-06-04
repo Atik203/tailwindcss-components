@@ -1,0 +1,274 @@
+<template>
+  <div class="flex h-full flex-col">
+    <header class="flex flex-none items-center justify-between border-b border-white/15 bg-gray-800/50 px-6 py-4">
+      <h1 class="text-base font-semibold text-white">
+        <time datetime="2022-01">January 2022</time>
+      </h1>
+      <div class="flex items-center">
+        <div class="relative flex items-center rounded-md bg-white/10 outline outline-1 -outline-offset-1 outline-white/5 md:items-stretch">
+          <button type="button" class="flex h-9 w-12 items-center justify-center rounded-l-md pr-1 text-gray-400 hover:text-white focus:relative md:w-9 md:pr-0 md:hover:bg-white/10">
+            <span class="sr-only">Previous week</span>
+            <ChevronLeftIcon class="size-5" aria-hidden="true" />
+          </button>
+          <button type="button" class="hidden px-3.5 text-sm font-semibold text-white hover:bg-white/10 focus:relative md:block">Today</button>
+          <span class="relative -mx-px h-5 w-px bg-white/10 md:hidden"></span>
+          <button type="button" class="flex h-9 w-12 items-center justify-center rounded-r-md pl-1 text-gray-400 hover:text-white focus:relative md:w-9 md:pl-0 md:hover:bg-white/10">
+            <span class="sr-only">Next week</span>
+            <ChevronRightIcon class="size-5" aria-hidden="true" />
+          </button>
+        </div>
+        <div class="hidden md:ml-4 md:flex md:items-center">
+          <Menu as="div" class="relative">
+            <MenuButton type="button" class="flex items-center gap-x-1.5 rounded-md bg-white/10 px-3 py-2 text-sm font-semibold text-white ring-1 ring-inset ring-white/5 hover:bg-white/20">
+              Week view
+              <ChevronDownIcon class="-mr-1 size-5 text-gray-500" aria-hidden="true" />
+            </MenuButton>
+
+            <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform scale-100" leave-to-class="transform opacity-0 scale-95">
+              <MenuItems class="absolute right-0 z-10 mt-3 w-36 origin-top-right overflow-hidden rounded-md bg-gray-800 shadow-lg outline outline-1 -outline-offset-1 outline-white/10">
+                <div class="py-1">
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Day view</a>
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Week view</a>
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Month view</a>
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Year view</a>
+                  </MenuItem>
+                </div>
+              </MenuItems>
+            </transition>
+          </Menu>
+          <div class="ml-6 h-6 w-px bg-white/10"></div>
+          <button type="button" class="ml-6 rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Add event</button>
+        </div>
+        <div class="ml-6 md:hidden">
+          <Menu as="div" class="relative">
+            <MenuButton class="relative flex items-center rounded-full text-gray-400 outline-offset-8 hover:text-white">
+              <span class="absolute -inset-2"></span>
+              <span class="sr-only">Open menu</span>
+              <EllipsisHorizontalIcon class="size-5" aria-hidden="true" />
+            </MenuButton>
+
+            <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform scale-100" leave-to-class="transform opacity-0 scale-95">
+              <MenuItems class="absolute right-0 z-10 mt-3 w-36 origin-top-right divide-y divide-white/10 overflow-hidden rounded-md bg-gray-800 shadow-lg outline outline-1 -outline-offset-1 outline-white/10">
+                <div class="py-1">
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Create event</a>
+                  </MenuItem>
+                </div>
+                <div class="py-1">
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Go to today</a>
+                  </MenuItem>
+                </div>
+                <div class="py-1">
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Day view</a>
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Week view</a>
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Month view</a>
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <a href="#" :class="[active ? 'bg-white/5 text-white outline-none' : 'text-gray-300', 'block px-4 py-2 text-sm']">Year view</a>
+                  </MenuItem>
+                </div>
+              </MenuItems>
+            </transition>
+          </Menu>
+        </div>
+      </div>
+    </header>
+    <div class="isolate flex flex-auto flex-col overflow-auto bg-gray-900">
+      <div style="width: 165%" class="flex max-w-full flex-none flex-col sm:max-w-none md:max-w-full">
+        <div class="sticky top-0 z-30 flex-none bg-gray-900 ring-1 ring-white/20 sm:pr-8">
+          <div class="grid grid-cols-7 text-sm/6 text-gray-400 sm:hidden">
+            <button type="button" class="flex flex-col items-center pb-3 pt-2">M <span class="mt-1 flex size-8 items-center justify-center font-semibold text-white">10</span></button>
+            <button type="button" class="flex flex-col items-center pb-3 pt-2">T <span class="mt-1 flex size-8 items-center justify-center font-semibold text-white">11</span></button>
+            <button type="button" class="flex flex-col items-center pb-3 pt-2">W <span class="mt-1 flex size-8 items-center justify-center rounded-full bg-indigo-500 font-semibold text-white">12</span></button>
+            <button type="button" class="flex flex-col items-center pb-3 pt-2">T <span class="mt-1 flex size-8 items-center justify-center font-semibold text-white">13</span></button>
+            <button type="button" class="flex flex-col items-center pb-3 pt-2">F <span class="mt-1 flex size-8 items-center justify-center font-semibold text-white">14</span></button>
+            <button type="button" class="flex flex-col items-center pb-3 pt-2">S <span class="mt-1 flex size-8 items-center justify-center font-semibold text-white">15</span></button>
+            <button type="button" class="flex flex-col items-center pb-3 pt-2">S <span class="mt-1 flex size-8 items-center justify-center font-semibold text-white">16</span></button>
+          </div>
+
+          <div class="-mr-px hidden grid-cols-7 divide-x divide-white/10 border-r border-white/10 text-sm/6 text-gray-400 sm:grid">
+            <div class="col-end-1 w-14"></div>
+            <div class="flex items-center justify-center py-3">
+              <span>Mon <span class="items-center justify-center font-semibold text-white">10</span></span>
+            </div>
+            <div class="flex items-center justify-center py-3">
+              <span>Tue <span class="items-center justify-center font-semibold text-white">11</span></span>
+            </div>
+            <div class="flex items-center justify-center py-3">
+              <span class="flex items-baseline">Wed <span class="ml-1.5 flex size-8 items-center justify-center rounded-full bg-indigo-500 font-semibold text-white">12</span></span>
+            </div>
+            <div class="flex items-center justify-center py-3">
+              <span>Thu <span class="items-center justify-center font-semibold text-white">13</span></span>
+            </div>
+            <div class="flex items-center justify-center py-3">
+              <span>Fri <span class="items-center justify-center font-semibold text-white">14</span></span>
+            </div>
+            <div class="flex items-center justify-center py-3">
+              <span>Sat <span class="items-center justify-center font-semibold text-white">15</span></span>
+            </div>
+            <div class="flex items-center justify-center py-3">
+              <span>Sun <span class="items-center justify-center font-semibold text-white">16</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-auto">
+          <div class="sticky left-0 z-10 w-14 flex-none bg-gray-900 ring-1 ring-white/5"></div>
+          <div class="grid flex-auto grid-cols-1 grid-rows-1">
+            <!-- Horizontal lines -->
+            <div class="col-start-1 col-end-2 row-start-1 grid divide-y divide-white/5" style="grid-template-rows: repeat(48, minmax(3.5rem, 1fr))">
+              <div class="row-end-1 h-7"></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">12AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">1AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">2AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">3AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">4AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">5AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">6AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">7AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">8AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">9AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">10AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">11AM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">12PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">1PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">2PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">3PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">4PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">5PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">6PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">7PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">8PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">9PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">10PM</div>
+              </div>
+              <div></div>
+              <div>
+                <div class="sticky left-0 z-20 -ml-14 -mt-2.5 w-14 pr-2 text-right text-xs/5 text-gray-500">11PM</div>
+              </div>
+              <div></div>
+            </div>
+
+            <!-- Vertical lines -->
+            <div class="col-start-1 col-end-2 row-start-1 hidden grid-rows-1 divide-x divide-white/5 sm:grid sm:grid-cols-7">
+              <div class="col-start-1 row-span-full"></div>
+              <div class="col-start-2 row-span-full"></div>
+              <div class="col-start-3 row-span-full"></div>
+              <div class="col-start-4 row-span-full"></div>
+              <div class="col-start-5 row-span-full"></div>
+              <div class="col-start-6 row-span-full"></div>
+              <div class="col-start-7 row-span-full"></div>
+              <div class="col-start-8 row-span-full w-8"></div>
+            </div>
+
+            <!-- Events -->
+            <ol class="col-start-1 col-end-2 row-start-1 grid grid-cols-1 sm:grid-cols-7 sm:pr-8" style="grid-template-rows: 1.75rem repeat(288, minmax(0, 1fr)) auto">
+              <li class="relative mt-px flex before:pointer-events-none before:absolute before:inset-1 before:z-0 before:rounded-lg before:bg-gray-900 sm:col-start-3" style="grid-row: 74 / span 12">
+                <a href="#" class="group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-blue-600/15 p-2 text-xs/5 hover:bg-blue-600/20">
+                  <p class="order-1 font-semibold text-blue-300">Breakfast</p>
+                  <p class="text-blue-400 group-hover:text-blue-300"><time datetime="2022-01-12T06:00">6:00 AM</time></p>
+                </a>
+              </li>
+              <li class="relative mt-px flex before:pointer-events-none before:absolute before:inset-1 before:z-0 before:rounded-lg before:bg-gray-900 sm:col-start-3" style="grid-row: 92 / span 30">
+                <a href="#" class="group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-pink-600/15 p-2 text-xs/5 hover:bg-pink-600/20">
+                  <p class="order-1 font-semibold text-pink-300">Flight to Paris</p>
+                  <p class="text-pink-400 group-hover:text-pink-300"><time datetime="2022-01-12T07:30">7:30 AM</time></p>
+                </a>
+              </li>
+              <li class="relative mt-px hidden before:pointer-events-none before:absolute before:inset-1 before:z-0 before:rounded-lg before:bg-gray-900 sm:col-start-6 sm:flex" style="grid-row: 122 / span 24">
+                <a href="#" class="group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-white/10 p-2 text-xs/5 hover:bg-white/15">
+                  <p class="order-1 font-semibold text-gray-300">Meeting with design team at Disney</p>
+                  <p class="text-gray-400 group-hover:text-gray-300"><time datetime="2022-01-15T10:00">10:00 AM</time></p>
+                </a>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, EllipsisHorizontalIcon } from '@heroicons/vue/20/solid'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+</script>

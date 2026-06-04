@@ -1,0 +1,33 @@
+<template>
+  <!-- Global notification live region, render this permanently at the end of the document -->
+  <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6">
+    <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+      <!-- Notification panel, dynamically insert this into the live region when it needs to be displayed -->
+      <transition enter-active-class="transform ease-out duration-300 transition" enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2" enter-to-class="translate-y-0 sm:translate-x-0" leave-active-class="transition ease-in duration-100" leave-from-class="" leave-to-class="opacity-0">
+        <div v-if="show" class="pointer-events-auto w-full max-w-sm rounded-lg bg-gray-800 shadow-lg outline-1 -outline-offset-1 outline-white/10">
+          <div class="p-4">
+            <div class="flex items-center">
+              <div class="flex w-0 flex-1 justify-between">
+                <p class="w-0 flex-1 text-sm font-medium text-white">Discussion archived</p>
+                <button type="button" class="ml-3 shrink-0 rounded-md bg-gray-800 text-sm font-medium text-indigo-400 hover:text-indigo-300 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-400">Undo</button>
+              </div>
+              <div class="ml-4 flex shrink-0">
+                <button type="button" @click="show = false" class="inline-flex rounded-md text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
+                  <span class="sr-only">Close</span>
+                  <XMarkIcon class="size-5" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { XMarkIcon } from '@heroicons/vue/20/solid'
+
+const show = ref(true)
+</script>

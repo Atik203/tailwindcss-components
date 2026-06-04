@@ -1,0 +1,12 @@
+<template>
+  <div>
+    <label for="price" class="block text-sm/6 font-medium text-white">Price</label>
+    <div class="mt-2">
+      <div class="flex items-center rounded-md bg-white/5 px-3 outline outline-1 -outline-offset-1 outline-white/10 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-500">
+        <div class="shrink-0 select-none text-base text-gray-400 sm:text-sm/6">$</div>
+        <input type="text" name="price" id="price" class="block min-w-0 grow bg-transparent py-1.5 pl-1 pr-3 text-base text-white placeholder:text-gray-500 focus:outline focus:outline-0 sm:text-sm/6" placeholder="0.00" aria-describedby="price-currency" />
+        <div id="price-currency" class="shrink-0 select-none text-base text-gray-400 sm:text-sm/6">USD</div>
+      </div>
+    </div>
+  </div>
+</template>

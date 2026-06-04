@@ -1,0 +1,8 @@
+<template>
+  <!-- Be sure to use this with a layout container that is full-width on mobile -->
+  <div class="overflow-hidden bg-gray-800/50 outline outline-1 -outline-offset-1 outline-white/10 sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <!-- Content goes here -->
+    </div>
+  </div>
+</template>

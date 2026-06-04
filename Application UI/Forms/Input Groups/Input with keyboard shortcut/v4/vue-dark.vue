@@ -1,0 +1,13 @@
+<template>
+  <div>
+    <label for="search" class="block text-sm/6 font-medium text-white">Quick search</label>
+    <div class="mt-2">
+      <div class="flex rounded-md bg-white/5 outline-1 -outline-offset-1 outline-white/10 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-500">
+        <input type="text" name="search" id="search" class="block min-w-0 grow bg-transparent px-3 py-1.5 text-base text-white placeholder:text-gray-500 focus:outline-none sm:text-sm/6" />
+        <div class="flex py-1.5 pr-1.5">
+          <kbd class="inline-flex items-center rounded-sm border border-white/10 px-1 font-sans text-xs text-gray-400">⌘K</kbd>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,0 +1,9 @@
+<template>
+  <div>
+    <label for="company-website" class="block text-sm/6 font-medium text-white">Company website</label>
+    <div class="mt-2 flex">
+      <div class="flex shrink-0 items-center rounded-l-md bg-white/5 px-3 text-base text-gray-400 outline-1 -outline-offset-1 outline-gray-700 sm:text-sm/6">https://</div>
+      <input type="text" name="company-website" id="company-website" class="-ml-px block w-full grow rounded-r-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-gray-700 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" placeholder="www.example.com" />
+    </div>
+  </div>
+</template>

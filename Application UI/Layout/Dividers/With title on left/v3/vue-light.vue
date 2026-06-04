@@ -1,0 +1,8 @@
+<template>
+  <div class="flex items-center">
+    <div class="relative flex justify-start">
+      <span class="bg-white pr-3 text-base font-semibold text-gray-900">Projects</span>
+    </div>
+    <div class="w-full border-t border-gray-300" aria-hidden="true"></div>
+  </div>
+</template>

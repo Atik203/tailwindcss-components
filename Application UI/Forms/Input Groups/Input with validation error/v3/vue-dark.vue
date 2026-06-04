@@ -1,0 +1,14 @@
+<template>
+  <div>
+    <label for="email" class="block text-sm/6 font-medium text-white">Email</label>
+    <div class="mt-2 grid grid-cols-1">
+      <input type="email" name="email" id="email" class="col-start-1 row-start-1 block w-full rounded-md bg-white/5 py-1.5 pl-3 pr-10 text-red-400 outline outline-1 -outline-offset-1 outline-red-500/50 placeholder:text-red-400/70 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-red-400 sm:pr-9 sm:text-sm/6" placeholder="you@example.com" value="adamwathan" aria-invalid="true" aria-describedby="email-error" />
+      <ExclamationCircleIcon class="pointer-events-none col-start-1 row-start-1 mr-3 size-5 self-center justify-self-end text-red-400 sm:size-4" aria-hidden="true" />
+    </div>
+    <p class="mt-2 text-sm text-red-400" id="email-error">Not a valid email address.</p>
+  </div>
+</template>
+
+<script setup>
+import { ExclamationCircleIcon } from '@heroicons/vue/16/solid'
+</script>

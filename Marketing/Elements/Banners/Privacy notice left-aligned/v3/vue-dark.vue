@@ -1,0 +1,11 @@
+<template>
+  <div class="pointer-events-none fixed inset-x-0 bottom-0 px-6 pb-6">
+    <div class="pointer-events-auto max-w-xl rounded-xl bg-gray-800 p-6 outline outline-1 -outline-offset-1 outline-white/10">
+      <p class="text-sm/6 text-white">This website uses cookies to supplement a balanced diet and provide a much deserved reward to the senses after consuming bland but nutritious meals. Accepting our cookies is optional but recommended, as they are delicious. See our <a href="#" class="font-semibold text-indigo-400 hover:text-indigo-300">cookie policy</a>.</p>
+      <div class="mt-4 flex items-center gap-x-5">
+        <button type="button" class="rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Accept all</button>
+        <button type="button" class="text-sm/6 font-semibold text-white hover:text-gray-300">Reject all</button>
+      </div>
+    </div>
+  </div>
+</template>

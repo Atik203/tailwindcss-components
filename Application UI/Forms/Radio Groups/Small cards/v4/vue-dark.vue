@@ -1,0 +1,25 @@
+<template>
+  <fieldset aria-label="Choose a memory option">
+    <div class="flex items-center justify-between">
+      <div class="text-sm/6 font-medium text-white">RAM</div>
+      <a href="#" class="text-sm/6 font-medium text-indigo-400 hover:text-indigo-300">See performance specs</a>
+    </div>
+    <div class="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <label v-for="option in memoryOptions" :key="option.id" :aria-label="option.name" class="group relative flex items-center justify-center rounded-md border border-white/10 bg-gray-800/50 p-3 has-checked:border-indigo-500 has-checked:bg-indigo-500 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-indigo-500 has-disabled:border-white/10 has-disabled:bg-gray-800 has-disabled:opacity-25">
+        <input type="radio" name="option" :value="option.id" :checked="option === memoryOptions[2]" :disabled="!option.inStock" class="absolute inset-0 appearance-none focus:outline-none disabled:cursor-not-allowed" />
+        <span class="text-sm font-medium text-white uppercase">{{ option.name }}</span>
+      </label>
+    </div>
+  </fieldset>
+</template>
+
+<script setup>
+const memoryOptions = [
+  { id: '4gb', name: '4 GB', inStock: true },
+  { id: '8gb', name: '8 GB', inStock: true },
+  { id: '16gb', name: '16 GB', inStock: true },
+  { id: '32gb', name: '32 GB', inStock: true },
+  { id: '64gb', name: '64 GB', inStock: true },
+  { id: '128gb', name: '128 GB', inStock: false },
+]
+</script>
