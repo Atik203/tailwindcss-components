@@ -1,0 +1,31 @@
+MIT License
+
+Copyright (c) 2026
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+### COPYRIGHT & FAIR USE DISCLAIMER
+
+The component files located in the directories `Application UI`, `Ecommerce`, and `Marketing` are third-party assets collected from online sources for personal self-learning, educational analysis, and design research purposes.
+
+1. **Exempt Use Case**: These component templates are studied privately under Fair Use guidelines (Section 107 of the US Copyright Act or local educational exemptions) to understand modern Tailwind CSS v4 design tokens, layouts, and front-end architectures.
+2. **Proprietary Rights**: All copyrights, trademarks, design rights, and intellectual property in these component templates belong exclusively to their respective owners (such as Tailwind Labs Inc.). No ownership claims are made on these assets.
+3. **No Commercial Distribution**: This repository and portal dashboard are strictly intended for offline, non-commercial, local study. Do not distribute, sell, or commercially exploit these templates.
