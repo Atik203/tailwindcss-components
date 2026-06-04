@@ -96,11 +96,19 @@ export default function App() {
 
   // Save accordion states to localStorage when they change
   useEffect(() => {
-    localStorage.setItem('portal_expanded_cats', JSON.stringify(expandedCategories));
+    try {
+      localStorage.setItem('portal_expanded_cats', JSON.stringify(expandedCategories));
+    } catch (err) {
+      console.warn('localStorage.setItem is disabled or sandboxed:', err);
+    }
   }, [expandedCategories]);
 
   useEffect(() => {
-    localStorage.setItem('portal_expanded_subcats', JSON.stringify(expandedSubcategories));
+    try {
+      localStorage.setItem('portal_expanded_subcats', JSON.stringify(expandedSubcategories));
+    } catch (err) {
+      console.warn('localStorage.setItem is disabled or sandboxed:', err);
+    }
   }, [expandedSubcategories]);
   
   // Code loading states
@@ -976,7 +984,7 @@ export default function App() {
                           title="Component Live Preview"
                           onLoad={() => setIframeLoaded(true)}
                           className={`w-full h-full border-none bg-transparent transition-opacity duration-300 ${iframeLoaded ? 'opacity-100' : 'opacity-0'}`}
-                          sandbox="allow-scripts"
+                          sandbox="allow-scripts allow-same-origin"
                         />
                       </>
                     ) : (
