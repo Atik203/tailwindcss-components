@@ -3,7 +3,7 @@ import {
   Search, Menu, X, Monitor, Smartphone, Tablet, Laptop, 
   Copy, Check, ExternalLink, Folder, Compass, ChevronDown, 
   ChevronRight, Moon, Sun, RotateCw, Eye, Code, Terminal, 
-  FileCode, Layers, Info, CheckCircle2, ChevronUp
+  FileCode, Layers, Info, CheckCircle2, ChevronUp, Github
 } from 'lucide-react';
 
 const getFileExtension = (flavor) => {
@@ -734,13 +734,26 @@ export default function App() {
 
           {/* Right: Dashboard Theme Toggle & GitHub/Docs info */}
           <div className="flex items-center gap-3">
+            <a
+              href="https://github.com/Atik203/tailwindcss-components"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="View GitHub Repository"
+              className={`p-2 rounded-lg border transition-colors ${
+                portalDarkMode 
+                  ? 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800' 
+                  : 'bg-white border-slate-200 text-slate-650 hover:bg-slate-100 hover:text-black'
+              }`}
+            >
+              <Github className="w-4 h-4" />
+            </a>
             <button
               onClick={() => setPortalDarkMode(!portalDarkMode)}
               title="Toggle Dashboard Dark Mode"
               className={`p-2 rounded-lg border transition-colors ${
                 portalDarkMode 
                   ? 'bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800' 
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                  : 'bg-white border-slate-200 text-slate-650 hover:bg-slate-100'
               }`}
             >
               {portalDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
