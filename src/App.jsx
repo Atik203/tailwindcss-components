@@ -418,6 +418,18 @@ export default function App() {
       </head>
       <body class="h-full ${darkClass}">
         ${htmlPreviewContent}
+        <script>
+          // Prevent iframe link navigation and form submission to stay on same component page
+          document.addEventListener('click', function(e) {
+            const anchor = e.target.closest('a');
+            if (anchor) {
+              e.preventDefault();
+            }
+          });
+          document.addEventListener('submit', function(e) {
+            e.preventDefault();
+          });
+        </script>
       </body>
       </html>
     `;
