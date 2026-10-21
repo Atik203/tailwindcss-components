@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node api.js && vite",
-    "build": "vite build && node scripts/copy-components.js",
+    "build": "node api.js && vite build && node scripts/copy-components.js",
     "preview": "vite preview",
     "generate-catalog": "node scripts/generate-catalog.js"
   },
